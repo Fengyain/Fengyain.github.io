@@ -1,20 +1,20 @@
 # Site settings
 title: FYB Blog
-SEOTitle: FYB Blog
-header-img: img/home-bg.jpg
-email: huxpro@gmail.com
+SEOTitle: FYB 微记录
+header-img: img/2.jpg
+email: 1187670370@qq.com
 description: "COOL BOY,COOL BLOG!"
 keyword: ""
-url: "http://Fengyain.github.com"              # your host, for absolute URL
+url: "http://Fengyain.github.io"              # your host, for absolute URL
 baseurl: ""         # for example, '/blog' if your blog hosted on 'host/blog'
 
 
 
 # SNS settings
 RSS: false
-weibo_username:     huxpro
-zhihu_username:     huxpro
-github_username:    1187670370@qq.com
+weibo_username:     笑掉牙
+zhihu_username:     慢赏微凉
+github_username:    Fengyain
 #twitter_username:  huxpro
 facebook_username:  huxpro
 
@@ -69,7 +69,7 @@ ga_domain: huangxuan.me
 # Sidebar settings
 sidebar: true                           # whether or not using Sidebar.
 sidebar-about-description: "写写代码，做做设计，看看产品。世界那么大，多玩玩看看。"
-sidebar-avatar: ../../../腾讯/qq记录保存/1187670370/FileRecv/MobileFile/IMG_20191028_125639.jpg
+sidebar-avatar: /img/1.jpg
       # use absolute URL, seeing it's used in both `/` and `/about/`
 
 
