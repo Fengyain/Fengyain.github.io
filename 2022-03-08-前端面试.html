@@ -886,6 +886,67 @@
 <figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable language_">window</span>.<span class="property">URL</span>.<span class="title function_">createObjectURL</span>(file / blob)</span><br></pre></td></tr></table></figure>
 
 <p>这个<strong>url可以用在[html]的任何可以使用url的地方</strong>，比如<strong>img的src ; audio/video的src和source标签等</strong>。<br>所有能在浏览器中显示的图片、音频、视频等都是可以用url转换成一个url对象的，这个对象一旦被[src]引用，就会显示出来。那么这些file或者[blob]来自于哪里呢？可以是在本地硬盘中通过<input type='file'>选择的文件，也可以是通过ajax请求后某个不知名的服务器请求到内存的。</p>
+<h3 id="Promise"><a href="#Promise" class="headerlink" title="Promise"></a>Promise</h3><h2 id="描述"><a href="#描述" class="headerlink" title="描述"></a><a target="_blank" rel="noopener" href="https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Promise#%E6%8F%8F%E8%BF%B0">描述</a></h2><p><strong>一个 <code>Promise</code> 对象代表一个在这个 promise 被创建出来时不一定已知的值</strong>。它让您能够<strong>把异步操作最终的成功返回值或者失败原因和相应的处理程序关联起来</strong>。 这样使得异步方法可以像同步方法那样返回值：*<em>异步方法并不会立即返回最终的值，而是会返回一个 <em>promise</em>，以便在未来某个时候把值交给使用者。</em>*</p>
+<p>一个 <code>Promise</code> 必然处于以下几种状态之一：</p>
+<ul>
+<li><p><em>待定（pending）</em>: 初始状态，既没有被兑现，也没有被拒绝。</p>
+</li>
+<li><p><em>已兑现（fulfilled）</em>: 意味着操作成功完成。</p>
+</li>
+<li><p><em>已拒绝（rejected）</em>: 意味着操作失败。</p>
+<p>当这些情况之一发生时，我们用 promise 的 then 方法排列起来的相关处理程序就会被调用。如果 promise 在一个相应的处理程序被绑定时就已经被兑现或被拒绝了，那么这个处理程序就会被调用，因此在完成异步操作和绑定处理方法之间不会存在竞争状态。</p>
+</li>
+</ul>
+<p><strong>因为 <code>Promise.prototype.then</code> 和 <code>Promise.prototype.catch</code> 方法返回的是 promise， 所以它们可以被链式调用。<img src="%E6%96%B0%E6%96%87%E7%AB%A0.assets/promises.png" alt="img"></strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">let promise = new Promise(function(resolve, reject) &#123;</span><br><span class="line">  // executor（生产者代码，“歌手”）</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+
+<p>由 <code>new Promise</code> 构造器返回的 <code>promise</code> 对象具有以下内部属性：</p>
+<ul>
+<li><code>state</code> —— 最初是 <code>&quot;pending&quot;</code>，然后在 <code>resolve</code> 被调用时变为 <code>&quot;fulfilled&quot;</code>，或者在 <code>reject</code> 被调用时变为 <code>&quot;rejected&quot;</code>。</li>
+<li><code>result</code> —— 最初是 <code>undefined</code>，然后在 <code>resolve(value)</code> 被调用时变为 <code>value</code>，或者在 <code>reject(error)</code> 被调用时变为 <code>error</code>。</li>
+</ul>
+<p>所以，executor 最终将 <code>promise</code> 移至以下状态之一：</p>
+<p><img src="%E6%96%B0%E6%96%87%E7%AB%A0.assets/image-20220310141435080.png" alt="image-20220310141435080"></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">let promise = new Promise(function(resolve, reject) &#123;</span><br><span class="line">  // 当 promise 被构造完成时，自动执行此函数</span><br><span class="line"></span><br><span class="line">  // 1 秒后发出工作已经被完成的信号，并带有结果 &quot;done&quot;</span><br><span class="line">  setTimeout(() =&gt; resolve(&quot;done&quot;), 1000);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+
+<ol>
+<li>executor 被自动且立即调用（通过 <code>new Promise</code>）。</li>
+<li>executor 接受两个参数：<code>resolve</code> 和 <code>reject</code>。这些函数由 JavaScipt 引擎预先定义，因此我们<strong>不需要创建</strong>它们。我们只需要在准备好（译注：指的是 executor 准备好）时调用其中之一即可。</li>
+</ol>
+<p>总而言之，executor 应该执行一项工作（<strong>通常是需要花费一些时间的事儿</strong>），然后调用 <code>resolve</code> 或 <code>reject</code> 来改变对应的 promise 对象的状态。</p>
+<p>与最初的 “pending” promise 相反，一个 resolved 或 rejected 的 promise 都会被称为 <strong>“settled”</strong>。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">let</span> promise = <span class="keyword">new</span> <span class="title class_">Promise</span>(<span class="keyword">function</span>(<span class="params">resolve, reject</span>) &#123;</span><br><span class="line">  <span class="title function_">resolve</span>(<span class="string">&quot;done&quot;</span>);</span><br><span class="line"></span><br><span class="line">  <span class="title function_">reject</span>(<span class="keyword">new</span> <span class="title class_">Error</span>(<span class="string">&quot;…&quot;</span>)); <span class="comment">// 被忽略</span></span><br><span class="line">  <span class="built_in">setTimeout</span>(<span class="function">() =&gt;</span> <span class="title function_">resolve</span>(<span class="string">&quot;…&quot;</span>)); <span class="comment">// 被忽略</span></span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+
+<p>这儿的宗旨是，一个被 executor 完成的工作<strong>只能有一个结果或一个 error。</strong></p>
+<p>并且，<code>resolve/reject</code> 只需要一个参数（或不包含任何参数），并且将忽略额外的参数。</p>
+<p><strong>但是建议使用 <code>Error</code> 对象（或继承自 <code>Error</code> 的对象）</strong></p>
+<p>还可以立即调用 <code>resolve</code> 或 <code>reject</code></p>
+<h3 id="then"><a href="#then" class="headerlink" title="then"></a><a target="_blank" rel="noopener" href="https://zh.javascript.info/promise-basics#then">then</a></h3><p>最重要最基础的一个就是 <code>.then</code>。</p>
+<p>语法如下：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">promise.<span class="title function_">then</span>(</span><br><span class="line">  <span class="keyword">function</span>(<span class="params">result</span>) &#123; <span class="comment">/* handle a successful result */</span> &#125;,</span><br><span class="line">  <span class="keyword">function</span>(<span class="params">error</span>) &#123; <span class="comment">/* handle an error */</span> &#125;</span><br><span class="line">);</span><br></pre></td></tr></table></figure>
+
+<p><code>.then</code> 的第一个参数是一个函数，该函数将在 promise resolved 后运行并接收结果。</p>
+<p><code>.then</code> 的第二个参数也是一个函数，该函数将在 promise rejected 后运行并接收 error。</p>
+<p>可以只为 <code>.then</code> 提供一个函数参数</p>
+<h3 id="catch"><a href="#catch" class="headerlink" title="catch"></a><a target="_blank" rel="noopener" href="https://zh.javascript.info/promise-basics#catch">catch</a></h3><p>如果我们<strong>只对 error 感兴趣，</strong>那么我们可以使用 <code>null</code> 作为第一个参数：<code>.then(null, errorHandlingFunction)</code>。或者我们也可以使用 <code>.catch(errorHandlingFunction)</code>，其实是一样的</p>
+<p><em><strong>.catch(f) 与 promise.then(null, f) 一样</strong></em><code>.catch(f)</code> 调用是 <code>.then(null, f)</code> 的完全的模拟，它只是一个简写形式。</p>
+<h3 id="finally"><a href="#finally" class="headerlink" title="finally"></a><a target="_blank" rel="noopener" href="https://zh.javascript.info/promise-basics#finally">finally</a></h3><p>就像常规 <code>try &#123;...&#125; catch &#123;...&#125;</code> 中的 <code>finally</code> 子句一样，promise 中也有 <code>finally</code>。</p>
+<p><code>.finally(f)</code> 调用与 <code>.then(f, f)</code> 类似，在某种意义上，<code>f</code> 总是在 promise 被 settled 时运行：即 promise 被 resolve 或 reject。</p>
+<p>**<code>finally</code> 是执行清理（cleanup）的很好的处理程序（handler），例如   <em>无论结果如何</em>， 都停止使用不再需要的加载指示符（indicator）。**</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">new Promise((resolve, reject) =&gt; &#123;</span><br><span class="line">  /* 做一些需要时间的事儿，然后调用 resolve/reject */</span><br><span class="line">&#125;)</span><br><span class="line">  // 在 promise 为 settled 时运行，无论成功与否</span><br><span class="line">  .finally(() =&gt; stop loading indicator)</span><br><span class="line">  // 所以，加载指示器（loading indicator）始终会在我们处理结果/错误之前停止</span><br><span class="line">  .then(result =&gt; show result, err =&gt; show error)</span><br></pre></td></tr></table></figure>
+
+<ol>
+<li><p><code>finally</code> 处理程序（handler）<strong>没有参数</strong>。<strong>在 <code>finally</code> 中，我们不知道 promise 是否成功</strong>。没关系，因为我们的任务通常是执行“常规”的定稿程序（finalizing procedures）。</p>
+</li>
+<li><p><code>finally</code> 处理程序将结果和 error 传递给下一个处理程序。</p>
+<p>例如，在这儿结果被从 <code>finally</code> 传递给了 <code>then</code></p>
+</li>
+</ol>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">let promise = new Promise((resolve, reject) =&gt; &#123;</span><br><span class="line">console.log(1)</span><br><span class="line">resolve()</span><br><span class="line">&#125;)</span><br><span class="line">promise.then(() =&gt; console.log(3))</span><br><span class="line"></span><br><span class="line">console.log(2)</span><br><span class="line"></span><br><span class="line">上面代码在控制台打印的结果是 1， 2， 3</span><br><span class="line"></span><br><span class="line">因为： 在 new Promise()的时候，Promise的执行器就会立马执行，但是调用resolve()会触发异步操作，传入的then()方法的函数会被添加到任务队列并异步执行</span><br></pre></td></tr></table></figure>
+
+<p><code>promise.then()</code>，<code>promise.catch()</code> 和 <code>promise.finally()</code> 这些方法将进一步的操作与一个变为已敲定状态的 promise 关联起来。这些方法还<strong>会返回一个新生成的 promise 对象</strong>，这个对象可以被非强制性的用来做链式调用</p>
+<h3 id="Promise-all"><a href="#Promise-all" class="headerlink" title="Promise.all()"></a>Promise.all()</h3><p>Promise.all() 方法接收一个<strong>promise的iterable类型</strong>（注：Array，Map，Set都属于ES6的iterable类型）的输入，并且<strong>只返回一个</strong><a target="_blank" rel="noopener" href="https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Promise"><code>Promise</code></a>实例， 那个输入的所有promise的resolve回调的<strong>结果是一个数组。</strong></p>
+<p>这个<a target="_blank" rel="noopener" href="https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Promise"><code>Promise</code></a>的resolve回调执行是在所有输入的promise的resolve回调<strong>都结束</strong>，或者输入的iterable里<strong>没有promise了的时候</strong>。它的reject回调执行是，只要任何一个输入的promise的reject回调执行或者输入不合法的promise就会立即抛出错误，并且reject的是<strong>第一个抛出</strong>的错误信息。</p>
 <h2 id="VUE"><a href="#VUE" class="headerlink" title="VUE"></a>VUE</h2><p><strong>指令带有前缀</strong> <code>v-</code>，以表示它们是 Vue 提供的特殊 attribute。可能你已经猜到了，它们会在渲染的 DOM 上应用特殊的响应式行为。在这里，该指令的意思是：“将这个元素节点的 <code>title</code> attribute 和 Vue 实例的 <code>message</code> property <strong>保持一致</strong>”</p>
 <p>数据和 DOM 已经被建立了关联，所有东西都是<strong>响应式的</strong></p>
 <p>一个 Vue 应用会将其挂载到一个 DOM 元素上 (对于这个例子是 <code>#app</code>) 然后对其进行完全控制。那个 HTML 是我们的入口，但其余都会发生在<strong>新创建的 Vue 实例内部</strong>。</p>
@@ -1032,7 +1093,7 @@
 <p><code>cookie</code> + <code>session</code>有跨域问题</p>
 <p><code>session</code>信息存储在当前服务器，分布式需做<code>session</code>共享机制（</p>
 <p>cookie`信息有CSRF安全问题</p>
-<p><img src="%E6%96%B0%E6%96%87%E7%AB%A0.assets/049c91629592478087eeb7185eda0051_tplv-k3u1fbpfcp-zoom-in-crop-mark_1304_0_0_0.awebp" alt="img"></p>
+<p><img src="%E6%96%B0%E6%96%87%E7%AB%A0.assets/049c91629592478087eeb7185eda0051_tplv-k3u1fbpfcp-zoom-in-crop-mark_1304_0_0_0-1646966771202.awebp" alt="img"></p>
 <ol>
 <li>客户端带上账号与密码进行认证</li>
 <li>服务端生成一个session用于<strong>保存用户当前的状态</strong>，并返回一个 sessionID</li>
@@ -1052,12 +1113,12 @@
 <li>凭证中<strong>直接写明</strong>用户的信息，并使用<strong>服务端秘钥</strong>对用户信息进行<strong>加密</strong>，<strong>生成一个签名</strong></li>
 <li></li>
 </ol>
-<p><img src="%E6%96%B0%E6%96%87%E7%AB%A0.assets/9fac6daeb08f468cab98f377b97d9e22_tplv-k3u1fbpfcp-zoom-in-crop-mark_1304_0_0_0.webp" alt="image.png"></p>
+<p><img src="%E6%96%B0%E6%96%87%E7%AB%A0.assets/9fac6daeb08f468cab98f377b97d9e22_tplv-k3u1fbpfcp-zoom-in-crop-mark_1304_0_0_0-1646966771203.webp" alt="image.png"></p>
 <h3 id="SSO"><a href="#SSO" class="headerlink" title="SSO"></a>SSO</h3><p>单点登录指的是在<strong>公司内部搭建</strong>一个<strong>公共的认证中心</strong>，公司下的所有产品的登录都可以在认证中心里完成，一个产品在认证中心登录后，再去访问另一个产品，可以不用再次登录，即可获取登录状态。</p>
 <h3 id="OAuth-第三方登录"><a href="#OAuth-第三方登录" class="headerlink" title="OAuth 第三方登录"></a>OAuth 第三方登录</h3><p>大厂都会提供自己的第三方登录服务</p>
 <h2 id="项目"><a href="#项目" class="headerlink" title="项目"></a>项目</h2><h3 id="登录"><a href="#登录" class="headerlink" title="登录"></a>登录</h3><p>传上来的 name 去数据库中找到对应用户，校验传上来的密码是否跟数据库中的一致。不一致则返回上一页（即登录页）并显示『用户名或密码错误』的通知，一致则将用户信<strong>息写入 session</strong>，跳转到主页并显示『登录成功』的通知。（flash（））中间件</p>
 <p><a target="_blank" rel="noopener" href="https://www.npmjs.com/package/connect-flash">connect-flash</a> 是基于 session 实现的，它的原理很简单：设置初始值 <code>req.session.flash=&#123;&#125;</code>，通过 <code>req.flash(name, value)</code> 设置这个对象下的字段和值，通过 <code>req.flash(name)</code> 获取这个对象下的值，同时删除这个字段，实现了只显示一次刷新后消失的功能。</p>
-<h3 id="mongoDB"><a href="#mongoDB" class="headerlink" title="mongoDB"></a>mongoDB</h3><p><img src="%E6%96%B0%E6%96%87%E7%AB%A0.assets/16b0bff4dd2dbc11_tplv-t2oaga2asx-zoom-in-crop-mark_1304_0_0_0.awebp" alt="img"></p>
+<h3 id="mongoDB"><a href="#mongoDB" class="headerlink" title="mongoDB"></a>mongoDB</h3><p><img src="%E6%96%B0%E6%96%87%E7%AB%A0.assets/16b0bff4dd2dbc11_tplv-t2oaga2asx-zoom-in-crop-mark_1304_0_0_0-1646966771203.awebp" alt="img"></p>
 <p><strong><code>Schema</code></strong> 到底是个什么东西呢，我们在往数据库插入数据之前是不是应该得稍微<strong>设计下文档的结构</strong>，也就是关系数据库中<strong>表的结构啥</strong>的，因为有一定的设计才使得数据的完整性，<strong>不会产生脏数据</strong>，Schema就是用来干这个事情的，我们看下官方的介绍：</p>
 <p><code>Schema</code> 主要用于定义 <code>MongoDB</code> 中集合 <code>Collection</code> （table）里文档 <code>document</code>(row) 的结构。<code>mongoose</code> 对表结构的定义，每个 <code>Schema</code> 会映射到mongodb中的一个 <code>collection</code>，<code>Schema</code> 不具备操作数据库的能力。</p>
 <p><code>mongoose.Schema</code>来调用Schema，然后使用new方法来创建schema</p>
@@ -1151,7 +1212,7 @@
 <p>在很多<strong>内部、管理系统中，采用纯前端渲染是非常合适的</strong>。但对于<strong>性能要求高</strong>，或有 <strong>SEO 需求</strong>的页面，我们仍然要面对拼接 HTML 的问题。</p>
 <h4 id="转义-HTML"><a href="#转义-HTML" class="headerlink" title="转义 HTML"></a>转义 HTML</h4><p>如果拼接 HTML 是必要的，就需要采<strong>用合适的转义库</strong>，对 HTML <strong>模板各处插入点进行充分的转义</strong>。</p>
 <p><strong>常用的模板引擎</strong>，如 doT.js、<strong>ejs</strong>、FreeMarker 等，对于 HTML 转义通常只有一个规则，就是把 <code>&amp; &lt; &gt; &quot; &#39; /</code> 这几个字符转义掉，确实能起到一定的 XSS 防护作用，但并不完善</p>
-<p><img src="%E6%96%B0%E6%96%87%E7%AB%A0.assets/image-20220309090451071.png" alt="image-20220309090451071"></p>
+<p><img src="%E6%96%B0%E6%96%87%E7%AB%A0.assets/image-20220309090451071-1646966771203.png" alt="image-20220309090451071"></p>
 <p>调用转义库</p>
 <h3 id="预防-DOM-型-XSS-攻击"><a href="#预防-DOM-型-XSS-攻击" class="headerlink" title="预防 DOM 型 XSS 攻击"></a>预防 DOM 型 XSS 攻击</h3><p>DOM 型 XSS 攻击，实际上就是网站<strong>前端 JavaScript 代码本身不够严谨</strong>，把不可信的数据当作代码执行了。</p>
 <p>在使用 <strong><code>.innerHTML</code>、<code>.outerHTML</code>、<code>document.write()</code></strong> 时要特别小心，不要把不可信的数据作为 HTML 插到页面上，而应尽量使用 <strong><code>.textContent</code>、<code>.setAttribute()</code></strong> 等。</p>
@@ -1210,6 +1271,286 @@
 
 <p>新建一个<code>views</code>目录，在此目录下放置所有的ejs模板文件</p>
 <p>ctx.render(‘index’)    <code>ctx.render(&#39;index&#39;)</code>将<code>index.ejs</code>渲染成<code>html</code>文件</p>
+<p>1、缓存功能，能够缓存已经解析好的html模版；</p>
+<p>2、&lt;% code %&gt;用于执行其中javascript代码。</p>
+<p>&lt;% alert(‘hello world’) %&gt;</p>
+<p>3、&lt;%= code %&gt;会对code进行html转义； </p>
+<p>&lt;%- code %&gt;将不会进行转义；，这一行代码不会执行，像是被注释了一样，然后显示原来的html。也不会影响整个页面的执行。（<strong>用的少，最好用转义的，最大程度上防止xss攻击</strong>）</p>
+<p>4、支持自定义闭合标签</p>
+<p>5、提供一些辅助函数，用于模版中使用 </p>
+<p>6、利用&lt;%- include filename %&gt;加载其他页面模版； </p>
+<h3 id="art-template-和-ejs"><a href="#art-template-和-ejs" class="headerlink" title="art template 和 ejs"></a>art template 和 ejs</h3><p>动态网页是指前端页面当中的数据内容来源于后台数据库，前端的<code>html</code>代码会随着后台数据的变化而变化，是动态生成的。制作动态网页有<strong>两种</strong>方式，一种方式是在<strong>后台拿到前端的<code>html</code>模板</strong>，利用后台<a target="_blank" rel="noopener" href="https://so.csdn.net/so/search?q=%E6%A8%A1%E6%9D%BF%E5%BC%95%E6%93%8E&spm=1001.2101.3001.7020">模板引擎</a>（如<code>ejs</code>等）在<strong>后台完成数据与<code>html</code>模板的拼接</strong>，最后把拼接<strong>完成的完整<code>html</code>代码返回给前端</strong>。但是这种工作模式会逐步走向过时，因为它不符合<a target="_blank" rel="noopener" href="https://so.csdn.net/so/search?q=%E5%89%8D%E5%90%8E%E7%AB%AF%E5%88%86%E7%A6%BB&spm=1001.2101.3001.7020">前后端分离</a>的趋势。而第二种方式则更加符合我们所提倡的前后端分离的概念，即后台<strong>只提供<code>json</code>数据，不做模板拼接的工作</strong>，前端通过**<code>ajax</code>来向后台请求<code>json</code>数据<strong>，然后在</strong>前台利用前台模板引擎（如<code>artTemplate</code>等）完成数据与模板的拼接工作**，从而生成完整的<code>html</code>代码。</p>
+<h4 id="ejs-1"><a href="#ejs-1" class="headerlink" title="ejs"></a>ejs</h4><p><strong>前端模板</strong></p>
+<p>我们只需要根据<code>ejs</code>所需要的模板的语法规则，把之后要填入数据的部分用特殊的标识符标出即可。我们用<code>&lt;% %&gt;</code>来包裹在<code>html</code>代码当中出现的<code>js</code>代码，对于<code>html</code>代码当中需要数据输出的部分用<code>&lt;%= %&gt;</code>来包裹表示，这些标识符内部出现的<strong>变量、数组、对象等均来源于后台数据。</strong></p>
+<p><strong>后台模板引擎拼接</strong></p>
+<p>当用户访问指定<code>ip</code>和指定端口号时，会利<strong>用<code>fs</code>模块去读<code>index.html</code>文件当中的内容</strong>，直接得到为<code>buffer</code>类型，再使用**<code>.toString()</code>方法将其转换为字符串类型<strong>。在后台利用<code>ejs.render()</code>方法把</strong>模板字符串和<code>json</code>数据拼接<strong>，生成完整的<code>html</code>代码字符串，然后设置好响应头，把</strong>完整的内容通过响应体的方式呈递给前端页面**。</p>
+<h4 id="art-template"><a href="#art-template" class="headerlink" title="art template"></a>art template</h4><p>前端页面当中在``标签对当中书写<code>html</code>模板字符串，其中给该<code>**script</code>标签定义一个<code>id</code>名<strong>，便于识别。我们用<code>&lt;% %&gt;</code>来包裹在<code>html</code>代码当中出现的<code>js</code>代码，对于<code>html</code>代码当中需要数据输出的部分用<code>&lt;%= %&gt;</code>来包裹表示，这些标识符内部出现的变量、数组、对象等均来源于后台数据。</strong>（与ejs类似）**</p>
+<p><strong>前端模板引擎完成拼接</strong></p>
+<p>数据应该来自于<code>ajax</code>请求的后台数据。再利用固定的方法名<code>template()</code>,将模板字符串与<code>json</code>数据进行模板拼接，形成完整的<code>html</code>代码，注入到<code>dom</code>元素当中</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">var html = template(&#x27;test&#x27;,dictionary); //拼接</span><br><span class="line">document.getElementById(&#x27;content&#x27;).innerHTML = html;</span><br></pre></td></tr></table></figure>
+
+<h2 id="jade优点"><a href="#jade优点" class="headerlink" title="jade优点"></a>jade优点</h2><ul>
+<li>可读性高**</li>
+<li>灵活的缩进**</li>
+<li>块展开</li>
+<li>代码默认经过编码处理(转义),安全性高**</li>
+<li>运行时和编译时上下文错误报告</li>
+<li>支持命令行编译**</li>
+<li>支持html5模式</li>
+<li>在内存中缓存(可选)**</li>
+<li>原生支持 Express**</li>
+<li>合并动态和静态标签类</li>
+<li>过滤器</li>
+</ul>
+<p><strong>Filters过滤器</strong></p>
+<p>过滤器可让你在Pug模板中使用其他语言。也就是支持插件的使用,通过插件对模板内容进行过滤,处理,输出.如scss,less,markdown</p>
+<p>Express是如何将Pug与Express集成的：在Express中，环境变量NODE_ENV旨在向Web应用程序通知执行环境：无论是在开发中还是在生产中。 Express和Pug自动修改生产环境中的几个选项的默认值，为用户提供更好的开箱即用体验。 具体来说，当process.env.NODE_ENV设置为“production”，Pug与Express一起使用时，compileDebug选项默认为false，而cache选项为true。</p>
+<h3 id="PM2"><a href="#PM2" class="headerlink" title="PM2"></a>PM2</h3><p>pm2 是 <strong>node 进程管理工具</strong>，可以利用它来简化很多 node 应用管理的繁琐任务，如<strong>性能监控、自动重启、负载均衡</strong>等，因为在工作中遇到服务器重启后，需要一个个去重新启动每个服务，这样不仅繁琐、效率低，而且容易遗忘开启一些服务</p>
+<p><strong>使用pm2管理的node程序的好处</strong></p>
+<ol>
+<li><p>监听文件变化，自动重启程序</p>
+</li>
+<li><p>支持性能监控</p>
+</li>
+<li><p>负载均衡</p>
+</li>
+<li><p>程序崩溃自动重启</p>
+</li>
+<li><p>服务器重新启动时自动重新启动</p>
+</li>
+<li><p>自动化部署项目</p>
+<p>项目中添加 pm2 的配置文件 pm2.json ，然后在 package.json 文件中配置启动命令 “pm2”: “pm2 start pm2.json” ，这样我们只需要运行 npm run pm2 就可以使用 pm2 启动我们的 express 项目</p>
+<p><strong>负载均衡</strong></p>
+<p>可以使用 -i 参数配置集群数，实现负载均衡</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ pm2 start app.js -i 3 // 开启三个进程</span><br><span class="line">$ pm2 start app.js -i max // 根据机器CPU核数，开启对应数目的进程 </span><br></pre></td></tr></table></figure>
+
+<p><strong>自动重启</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">我们需要额外安装其它库，如下所示：</span><br><span class="line">$ npm install pm2-windows-startup -g</span><br><span class="line">$ pm2-startup install</span><br><span class="line">复制代码然后我们只需要运行以下保存命令，就可以将现在正在运行的服务添加到开机自启动命令中；后面即使服务器开机重启，也会将我们保存的服务自动重启；</span><br><span class="line">$ pm2 save</span><br></pre></td></tr></table></figure>
+
+<h4 id="集群-cluster"><a href="#集群-cluster" class="headerlink" title="集群(cluster)"></a>集群(cluster)</h4><p><code>cluster</code> 模块基于<code>child_process</code>模块的<code>fork</code>方法，多次<code>fork</code><strong>主进程</strong>，产生多个<strong>子进程</strong>，这样就可以使用多核CPU，充分利用了服务器的资源。</p>
+<p>这种方式 <strong>主进程</strong>监听一个端口，<strong>子进程</strong>不监听端口，通过<strong>主进程</strong>分发请求到<strong>子进程</strong>，支持<strong>负载均衡</strong>。<strong>PM2进程管理工具</strong>会将这个过程变得更容易执行。</p>
+<p>在 cluster 模式中存在 <strong>master</strong> 和 <strong>worker</strong> 的概念，<strong>master 就是主进程，worker 则是子进程</strong>。master会通过<code>fork</code>产生多个worker，并管理他们。每一个worker代表着一个应用程序的实例。</p>
+<p>master会接收所有的请求，并通过<strong>负载均衡算法</strong>(<strong>round-robin</strong>)分发给子进程。<strong>Linux服务器</strong>默认会开启这个功能，并且可以全局修改以让操作系统本身支持负载均衡。</p>
+<p><strong>负载均衡算法</strong>在轮询的基础上在所有可用进程之间平均分配负载。第一个请求被转发到第一个<strong>worker</strong> 进程，第二个请求转发到列表中的下一个<strong>worker</strong> 进程，依此类推。当到达列表的末尾时，算法又从头开始。</p>
+<p>这是最简单和最常用的负载均衡算法之一，但它不是唯一的。有的算法可以设置分配优先级并选择负载最少的服务器或响应时间最快的服务器。</p>
+<h3 id="权限管理"><a href="#权限管理" class="headerlink" title="权限管理"></a>权限管理</h3><p>通过访问接口，<strong>后端会返回一个权限相关的list数组</strong>，其中数组<strong>值为路由的name属性值</strong>，前端通过<strong>递归遍历<code>asyncRoutes</code>判断权限list中是否包含有对应的name路由</strong>，<strong>最终会返回</strong>包含该用户角色所有权限路由页面的addRoutes的<strong>数组对象</strong>。<img src="%E6%96%B0%E6%96%87%E7%AB%A0.assets/16ce5f04b2208658_tplv-t2oaga2asx-zoom-in-crop-mark_1304_0_0_0.awebp" alt="img"></p>
+</li>
+</ol>
+<p>当我每次退出登录的时候执行<code>resetRouter</code>方法来初始化router对象，实现删除之前动态添加的路由。</p>
+<p><strong>页面权限控制又分为两种：</strong></p>
+<ul>
+<li>菜单中的页面是否能<strong>被访问</strong></li>
+<li>页面中的按钮（增、删、改）的权限控制<strong>是否显示</strong></li>
+</ul>
+<p>这些权限一般是在固定页面进行配置，保存后记录到数据库中。</p>
+<p><img src="%E6%96%B0%E6%96%87%E7%AB%A0.assets/16cfa3fd181e548d_tplv-t2oaga2asx-zoom-in-crop-mark_1304_0_0_0.awebp" alt="权限的流程"></p>
+<p>所以需要将<strong>登录、404、维护</strong>等页面写到<strong>默认的路由中</strong>，而将其它的需要权限的页面写到一个变量或者一个文件中，这样可以有效的减轻后续的维护压力。</p>
+<blockquote>
+<p>这里有一个需要非常注意的地方就是 404 页面一定要最后加载，如果放在constantRouterMap一同声明了404，后面的所以页面都会被拦截到404</p>
+</blockquote>
+<p>我们现在请求后台拿到了权限数据，并将<strong>数据存放到了vuex中</strong>，下面我们需要利用返回数据<strong>匹配之前写的异步路由表</strong>，将匹配结果和静态路由表<strong>结合</strong>，开成最终的实际路由表</p>
+<p>其中最关键的是利用vue-router2.2.0版本新添加的一个addRoutes方法，我们看看官方文档如何解释此方法的：</p>
+<blockquote>
+<p>router.addRoutes(routes) 2.2.0+ 动<strong>态添加更多的路由规则。参数必须是一个符合 routes 选项要求的数组</strong>。</p>
+</blockquote>
+<p>使用addRoutes进行<strong>路由匹配</strong></p>
+<p><strong>编写导航钩子<img src="%E6%96%B0%E6%96%87%E7%AB%A0.assets/16cfa3fd18b05c8a_tplv-t2oaga2asx-zoom-in-crop-mark_1304_0_0_0.awebp" alt="流程图"></strong></p>
+<h4 id="数据操作权限"><a href="#数据操作权限" class="headerlink" title="数据操作权限"></a>数据操作权限</h4><p>为每个路由页面增加meta字段。在routerMatch函数中将匹配到的详细权限字段赋值到这里。这样在每个页面的route对象中就会得到这个字段。</p>
+<p>接下来我们编写一个vue自定义指令对页面中需要进行鉴权的元素进行判断，比如类似这样的：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">&lt;a @click=&quot;upload&quot; v-allow=&quot;&#x27;3&#x27;&quot;&gt;&lt;/a&gt; /* 3代表一个上传权限的ID，权限中有3则显示按钮 */</span><br><span class="line">复制代码</span><br></pre></td></tr></table></figure>
+
+<p>我们直接注册一个全局指令，利用vnode来访问vue的方法</p>
+<h3 id="axios"><a href="#axios" class="headerlink" title="axios"></a>axios</h3><h4 id="axios的封装"><a href="#axios的封装" class="headerlink" title="axios的封装"></a>axios的封装</h4><p>在项目的src目录中，新建一个request文件夹，然后在里面新建一个http.js和一个api.js文件。http.js文件用来封装我们的axios，api.js用来统一管理我们的接口</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">// 在http.js中引入axios</span><br><span class="line">import axios from &#x27;axios&#x27;; // 引入axios</span><br><span class="line">import QS from &#x27;qs&#x27;; // 引入qs模块，用来序列化post类型的数据，后面会提到</span><br><span class="line">// vant的toast提示框组件，大家可根据自己的ui组件更改。</span><br><span class="line">import &#123; Toast &#125; from &#x27;vant&#x27;; </span><br></pre></td></tr></table></figure>
+
+<p>axios.defaults.baseURL可以设置axios的默认请求地址</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">// 环境的切换</span><br><span class="line">if (process.env.NODE_ENV == &#x27;development&#x27;) &#123;    </span><br><span class="line">    axios.defaults.baseURL = &#x27;https://www.baidu.com&#x27;;&#125; </span><br><span class="line">else if (process.env.NODE_ENV == &#x27;debug&#x27;) &#123;    </span><br><span class="line">    axios.defaults.baseURL = &#x27;https://www.ceshi.com&#x27;;</span><br><span class="line">&#125; </span><br><span class="line">else if (process.env.NODE_ENV == &#x27;production&#x27;) &#123;    </span><br><span class="line">    axios.defaults.baseURL = &#x27;https://www.production.com&#x27;;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">设置请求超时</span><br><span class="line">通过axios.defaults.timeout设置默认的请求超时时间。例如超过了10s，就会告知用户当前请求超时，请刷新等。</span><br><span class="line">axios.defaults.timeout = 10000;</span><br></pre></td></tr></table></figure>
+
+<h4 id="post请求头的设置"><a href="#post请求头的设置" class="headerlink" title="post请求头的设置"></a>post请求头的设置</h4><p>post请求的时候，我们需要加上一个请求头，所以可以在这里进行一个默认的设置，即设置post的请求头为<code>application/x-www-form-urlencoded;charset=UTF-8</code></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">axios.defaults.headers.post[&#x27;Content-Type&#x27;] = &#x27;application/x-www-form-urlencoded;charset=UTF-8&#x27;;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>请求拦截</li>
+</ul>
+<p>我们在发送请求前可以进行一个请求的拦截，为什么要拦截呢，我们拦截请求是用来做什么的呢？比如，有些请求是<strong>需要用户登录之后才能访问的</strong>，或者post请求的时候，我们<strong>需要序列化我们提交的数据</strong>。这时候，我们<strong>可以在请求被发送之前进行一个拦截，从而进行我们想要的操作</strong>。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">// 先导入vuex,因为我们要使用到里面的状态对象</span><br><span class="line">// vuex的路径根据自己的路径去写</span><br><span class="line">import store from &#x27;@/store/index&#x27;;</span><br><span class="line"></span><br><span class="line">// 请求拦截器axios.interceptors.request.use(    </span><br><span class="line">    config =&gt; &#123;        </span><br><span class="line">        // 每次发送请求之前判断vuex中是否存在token        </span><br><span class="line">        // 如果存在，则统一在http请求的header都加上token，这样后台根据token判断你的登录情况</span><br><span class="line">        // 即使本地存在token，也有可能token是过期的，所以在响应拦截器中要对返回状态进行判断 </span><br><span class="line">        const token = store.state.token;        </span><br><span class="line">        token &amp;&amp; (config.headers.Authorization = token);        </span><br><span class="line">        return config;    </span><br><span class="line">    &#125;,    </span><br><span class="line">    error =&gt; &#123;        </span><br><span class="line">        return Promise.error(error);    </span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+
+<p>这里说一下token，一般是在登录完成之后，将用户的token通过localStorage或者cookie<strong>存在本地</strong>，然后用户每次在进入页面的时候（即在main.js中），会首先<strong>从本地存储中读取token</strong>，如果token存在说明用户已经登陆过，则<strong>更新vuex中的token状态</strong>。然后，在每次请求接口的时候，都会<strong>在请求的header中携带token</strong>，后台人员就可以根据你携带的token来判断你的登录是否过期，如果没有携带，则说明没有登录过。这时候或许有些小伙伴会有疑问了，就是每个请求都携带token，那么要是一个页面不需要用户登录就可以访问的怎么办呢？其实，你前端的请求可以携带token，但是后台可以选择不接收啊！</p>
+<h4 id="响应的拦截"><a href="#响应的拦截" class="headerlink" title="响应的拦截"></a>响应的拦截</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">// 服务器状态码不是2开头的的情况</span><br><span class="line">    // 这里可以跟你们的后台开发人员协商好统一的错误状态码    </span><br><span class="line">    // 然后根据返回的状态码进行一些操作，例如登录过期提示，错误提示等等</span><br></pre></td></tr></table></figure>
+
+<p>响应拦截器很好理解，就是<strong>服务器返回给我们的数据</strong>，我们在<strong>拿到之前可</strong>以对他进行一些处理。例如上面的思想：如果后台返回的状态码是200，则正常返回数据，否则的根据错误的状态码类型进行一些我们需要的错误，其实这里主要就是进行了错误的统一处理和没登录或登录过期后调整登录页的一个操作。</p>
+<p><strong>get方法</strong>：我们通过定义一个get函数，get函数有两个参数，<strong>第一个参数表示我们要请求的url地址，第二个参数是我们要携带的请求参数</strong>。<strong>get函数返回一个promise对象</strong>，当axios其请求成功时resolve服务器返回 值，请求失败时reject错误值。最后通过export抛出get函数。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">/**</span><br><span class="line"> * get方法，对应get请求</span><br><span class="line"> * @param &#123;String&#125; url [请求的url地址]</span><br><span class="line"> * @param &#123;Object&#125; params [请求时携带的参数]</span><br><span class="line"> */</span><br><span class="line">export function get(url, params)&#123;    </span><br><span class="line">    return new Promise((resolve, reject) =&gt;&#123;        </span><br><span class="line">        axios.get(url, &#123;            </span><br><span class="line">            params: params        </span><br><span class="line">        &#125;).then(res =&gt; &#123;</span><br><span class="line">            resolve(res.data);</span><br><span class="line">        &#125;).catch(err =&gt;&#123;</span><br><span class="line">            reject(err.data)        </span><br><span class="line">    &#125;)    </span><br><span class="line">&#125;);&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>post方法：</strong>原理同get基本一样，但是要注意的是，<strong>post方法必须要使用对提交从参数对象进行序列化的操作，所以这里我们通过node的qs模块来序列化我们的参数。这个很重要，如果没有序列化操作，后台是拿不到你提交的数据的。****QS.stringify</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">/** </span><br><span class="line"> * post方法，对应post请求 </span><br><span class="line"> * @param &#123;String&#125; url [请求的url地址] </span><br><span class="line"> * @param &#123;Object&#125; params [请求时携带的参数] </span><br><span class="line"> */</span><br><span class="line">export function post(url, params) &#123;</span><br><span class="line">    return new Promise((resolve, reject) =&gt; &#123;</span><br><span class="line">         axios.post(url, QS.stringify(params))</span><br><span class="line">        .then(res =&gt; &#123;</span><br><span class="line">            resolve(res.data);</span><br><span class="line">        &#125;)</span><br><span class="line">        .catch(err =&gt;&#123;</span><br><span class="line">            reject(err.data)</span><br><span class="line">        &#125;)</span><br><span class="line">    &#125;);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><code>axios.get()</code>方法和<code>axios.post()</code>在提交数据时参数的书写方式还是有区别的。区别就是，<strong>get的第二个参数是一个{}，然后这个对象的params属性值是一个参数对象的。而post的第二个参数就是一个参数对象。</strong></p>
+<h4 id="api的统一管理"><a href="#api的统一管理" class="headerlink" title="api的统一管理"></a>api的统一管理</h4><p>新建一个api.js,然后在这个文件中存放我们所有的api接口</p>
+<ul>
+<li><p>首先我们在api.js中引入我们封装的get和post方法</p>
+</li>
+<li><p>```<br>api接口统一管理<br>import { get, post } from ‘./http’</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">- 在api.js中这样封装：</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>export const apiAddress = p =&gt; post(‘api/v1/users/my_address/address_edit_before’, p);</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">定义了一个`apiAddress`方法，这个方法有一个参数p，p是我们请求接口时携带的参数对象。而后调用了我们封装的`post`方法，`post`方法的第一个参数是我们的接口地址，第二个参数是`apiAddress`的p参数，即请求接口时携带的参数对象。最后通过export导出`apiAddress`。</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>methods: {            </p>
+<pre><code>  // 获取数据            
+  onLoad() &#123;
+      // 调用api接口，并且提供了两个参数                
+      apiAddress(&#123;                    
+          type: 0,                    
+          sort: 1                
+      &#125;).then(res =&gt; &#123;
+          // 获取数据成功后的其他操作
+          ………………                
+      &#125;)            
+  &#125;       
+</code></pre>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">其他的api接口，就在api.js中继续往下面扩展就可以了。友情提示，为每个接口写好注释</span><br><span class="line"></span><br><span class="line">完成的axios封装代码：</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>/**</p>
+</li>
+</ul>
+<ul>
+<li>axios封装</li>
+<li>请求拦截、响应拦截、错误统一处理</li>
+<li>/<br>import axios from ‘axios’;<br>import router from ‘../router’;<br>import store from ‘../store/index’;<br>import { Toast } from ‘vant’;</li>
+</ul>
+<p>/** </p>
+<ul>
+<li>提示函数 </li>
+<li>禁止点击蒙层、显示一秒后关闭</li>
+<li>/<br>const tip = msg =&gt; {<br>  Toast({        <pre><code>  message: msg,        
+  duration: 1000,        
+  forbidClick: true    
+</code></pre>
+  });<br>}</li>
+</ul>
+<p>/** </p>
+<ul>
+<li>跳转登录页</li>
+<li>携带当前页面路由，以期在登录页面完成登录后返回当前页面</li>
+<li>/<br>const toLogin = () =&gt; {<br>  router.replace({<pre><code>  path: &#39;/login&#39;,        
+  query: &#123;
+      redirect: router.currentRoute.fullPath
+  &#125;
+</code></pre>
+  });<br>}</li>
+</ul>
+<p>/** </p>
+<ul>
+<li>请求失败后的错误统一处理 </li>
+<li>@param {Number} status 请求失败的状态码</li>
+<li>/<br>const errorHandle = (status, other) =&gt; {<br>  // 状态码判断<br>  switch (status) {<pre><code>  // 401: 未登录状态，跳转登录页
+  case 401:
+      toLogin();
+      break;
+  // 403 token过期
+  // 清除token并跳转登录页
+  case 403:
+      tip(&#39;登录过期，请重新登录&#39;);
+      localStorage.removeItem(&#39;token&#39;);
+      store.commit(&#39;loginSuccess&#39;, null);
+      setTimeout(() =&gt; &#123;
+          toLogin();
+      &#125;, 1000);
+      break;
+  // 404请求不存在
+  case 404:
+      tip(&#39;请求的资源不存在&#39;); 
+      break;
+  default:
+      console.log(other);   
+  &#125;&#125;
+</code></pre>
+</li>
+</ul>
+<p>// 创建axios实例<br>var instance = axios.create({    timeout: 1000 * 12});<br>// 设置post请求头<br>instance.defaults.headers.post[‘Content-Type’] = ‘application/x-www-form-urlencoded’;<br>/** </p>
+<ul>
+<li>请求拦截器 </li>
+<li>每次请求前，如果存在token则在请求头中携带token </li>
+<li>/<br>instance.interceptors.request.use(<br>  config =&gt; {        <pre><code>  // 登录流程控制中，根据本地是否存在token判断用户的登录情况        
+  // 但是即使token存在，也有可能token是过期的，所以在每次的请求头中携带token        
+  // 后台根据携带的token判断用户的登录情况，并返回给我们对应的状态码        
+  // 而后我们可以在响应拦截器中，根据状态码进行一些统一的操作。        
+  const token = store.state.token;        
+  token &amp;&amp; (config.headers.Authorization = token);        
+  return config;    
+</code></pre>
+  },<br>  error =&gt; Promise.error(error))</li>
+</ul>
+<p>// 响应拦截器<br>instance.interceptors.response.use(<br>    // 请求成功<br>    res =&gt; res.status === 200 ? Promise.resolve(res) : Promise.reject(res),<br>    // 请求失败<br>    error =&gt; {<br>        const { response } = error;<br>        if (response) {<br>            // 请求已发出，但是不在2xx的范围<br>            errorHandle(response.status, response.data.message);<br>            return Promise.reject(response);<br>        } else {<br>            // 处理断网的情况<br>            // eg:请求超时或断网时，更新state的network状态<br>            // network状态在app.vue中控制着一个全局的断网提示组件的显示隐藏<br>            // 关于断网组件中的刷新重新获取数据，会在断网组件中说明<br>            if (!window.navigator.onLine) {<br>               store.commit(‘changeNetwork’, false);<br>            } else {<br>                return Promise.reject(error);<br>            }<br>        }<br>    });</p>
+<p>export default instance;</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">1.**去掉了之前get和post方法的封装，通过创建一个axios实例然后export default方法导出**，这样使用起来**更灵活**一些。</span><br><span class="line"></span><br><span class="line">2.去掉了通过环境变量控制baseUrl的值。考虑到**接口会有多个不同域名的情况**，所以准备通过js变量来控制接口域名。这点具体在api里会介绍。</span><br><span class="line"></span><br><span class="line">3.增加了**请求超时，即断网状态的处理**。说下思路，当断网时，通过**更新vuex中network的状态来控制断网提示组件的显示隐藏**。断网提示一般会有重新加载数据的操作，这步会在后面对应的地方介绍。</span><br><span class="line"></span><br><span class="line">4.公用函数进行抽出，简化代码，尽量保证单一职责原则。</span><br><span class="line"></span><br><span class="line">**api：**</span><br><span class="line"></span><br><span class="line">1.更加模块化</span><br><span class="line"></span><br><span class="line">2.更方便多人开发，有效减少解决命名冲突</span><br><span class="line"></span><br><span class="line">3.处理接口域名有多个情况</span><br><span class="line"></span><br><span class="line">index.js代码：</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>/** </p>
+<ul>
+<li>api接口的统一出口</li>
+<li>/<br>// 文章模块接口<br>import article from ‘@/api/article’;<br>// 其他模块的接口……</li>
+</ul>
+<p>// 导出接口<br>export default {<br>    article,<br>    // ……<br>}复制代码</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">index.js是一个api接口的出口，这样就可以把api接口根据功能划分为多个模块，利于多人协作开发，比如一个人只负责一个模块的开发等，还能方便每个模块中接口的命名</span><br><span class="line"></span><br><span class="line">base.js:</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>/**</p>
+<ul>
+<li>接口域名的管理</li>
+<li>/<br>const base = {<br>  sq: ‘<a target="_blank" rel="noopener" href="https://xxxx111111.com/api/v1&#39;">https://xxxx111111.com/api/v1&#39;</a>,<br>  bd: ‘<a target="_blank" rel="noopener" href="http://xxxxx22222.com/api&#39;">http://xxxxx22222.com/api&#39;</a><br>}</li>
+</ul>
+<p>export default base;复制代码</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">通过base.js来管理我们的接口域名，不管有多少个都可以通过这里进行接口的定义。即使修改起来，也是很方便的。</span><br><span class="line"></span><br><span class="line">article.js:</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>/**</p>
+<ul>
+<li>article模块接口列表</li>
+<li>/</li>
+</ul>
+<p>import base from ‘./base’; // 导入接口域名列表<br>import axios from ‘@/utils/http’; // 导入http中创建的axios实例<br>import qs from ‘qs’; // 根据需求是否导入qs模块</p>
+<p>const article = {<br>    // 新闻列表<br>    articleList () {<br>        return axios.get(<code>$&#123;base.sq&#125;/topics</code>);<br>    },<br>    // 新闻详情,演示<br>    articleDetail (id, params) {<br>        return axios.get(<code>$&#123;base.sq&#125;/topic/$&#123;id&#125;</code>, {<br>            params: params<br>        });<br>    },<br>    // post提交<br>    login (params) {<br>        return axios.post(<code>$&#123;base.sq&#125;/accesstoken</code>, qs.stringify(params));<br>    }<br>    // 其他接口…………<br>}</p>
+<p>export default article;</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">1.通过直接引入我们封装好的**axios实例**，**然后定义接口、调用axios实例并返回**，可以更灵活的使用axios，比如你可以对post请求时提交的数据进行一个**qs序列化的处理**等。</span><br><span class="line"></span><br><span class="line">2.请求的配置更灵活，你可以针对某个需求进行一个不同的配置。关于配置的优先级，axios文档说的很清楚，这个顺序是：在 `lib/defaults.js` 找到的库的默认值，然后是实例的 `defaults` 属性，最后是请求的 `config` 参数。后者将优先于前者。</span><br><span class="line"></span><br><span class="line">3.restful风格的接口，也可以通过这种方式灵活的设置api接口地址。</span><br><span class="line"></span><br><span class="line">挂载到vue的原型上。在main.js中：</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>import Vue from ‘vue’<br>import App from ‘./App’<br>import router from ‘./router’ // 导入路由文件<br>import store from ‘./store’ // 导入vuex文件<br>import api from ‘./api’ // 导入api接口</p>
+<p>Vue.prototype.$api = api; // 将api挂载到vue的原型上</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">调用接口</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>methods: {<br>    onLoad(id) {<br>        this.$api.article.articleDetail(id, {<br>            api: 123<br>        }).then(res=&gt; {<br>            // 执行某些操作<br>        })<br>    }<br>}</p>
+<p>```</p>
+<h3 id="vue单页面-SPA-和多页面-MPA-的区别"><a href="#vue单页面-SPA-和多页面-MPA-的区别" class="headerlink" title="vue单页面(SPA)和多页面(MPA)的区别"></a>vue单页面(SPA)和多页面(MPA)的区别</h3><p><code>SPA</code> 全称 <code>Single Page Application</code>，即单页面应用。一般也称为 <strong>CSR</strong>（Client Side Render），即客户端渲染。对于 SPA 来说，<strong>页面的切换就是组件或视图之间的切换。</strong></p>
+<p>简单来说,SPA应用程序<strong>只有一个html文件</strong>,在vue中可以通过**<code>vue-router</code>来局部切换组件,而非刷新整个页面,来实现无刷新切换页面的技术**</p>
+<h2 id="SPA的优点"><a href="#SPA的优点" class="headerlink" title="SPA的优点"></a>SPA的优点</h2><ul>
+<li>1.页面切换快</li>
+</ul>
+<p>页面每次切换跳转时，并不需要做<code>html</code>文件的请求，这样就节约了很多<code>http</code>发送时延，我们在切换页面的时候速度很快。</p>
+<ul>
+<li>2.用户体验好</li>
+</ul>
+<p>页面片段间的切换快，包括移动设备, 尤其是在网络环境差的时候, 因为组件已经预先加载好了, 并不需要发送网络请求, 所以用户体验好</p>
+<h2 id="SPA的缺点"><a href="#SPA的缺点" class="headerlink" title="SPA的缺点"></a>SPA的缺点</h2><ul>
+<li>1.首屏加载速度慢</li>
+</ul>
+<p>首屏时需要请求一次<code>html</code>，同时还要发送一次<code>js</code>请求，两次请求回来了，首屏才会展示出来。相对于多页应用，首屏时间慢。</p>
+<ul>
+<li>2.不易于SEO</li>
+</ul>
+<p>SEO效果差，因为搜索引擎只认识<code>html</code>里的内容，不认识<code>js</code>的内容，而单页应用的内容都是靠<code>js</code>渲染生成出来的，搜索引擎不识别这部分内容，也就不会给一个好的排名，会导致SPA应用做出来的网页在百度和谷歌上的排名差。</p>
+<h2 id="MPA的优点"><a href="#MPA的优点" class="headerlink" title="MPA的优点"></a>MPA的优点</h2><ul>
+<li>1.首屏加载速度快</li>
+</ul>
+<p>当我们访问页面的时候，服务器返回一个<code>html</code>，页面就会展示出来，这个过程只经历了一个<code>HTTP</code>请求，所以页面展示的速度非常快。</p>
+<ul>
+<li>2.SEO效果好</li>
+</ul>
+<p>搜索引擎在做网页排名的时候，要根据网页的内容才能给网页权重，来进行网页的排名。搜索引擎是可以识别<code>html</code>内容的，而我们每个页面所有的内容都放在<code>html</code>中，所以这种多页应用SEO排名效果好。</p>
+<h2 id="MPA的缺点"><a href="#MPA的缺点" class="headerlink" title="MPA的缺点"></a>MPA的缺点</h2><ul>
+<li>1.页面切换慢</li>
+</ul>
+<p>因为每次跳转都需要发送一个 HTTP 请求，如果网络状态不好，在页面之间来回跳转时，就会发生明显的卡顿，影响用户体验。</p>
+<ul>
+<li>2.用户体验不佳</li>
+</ul>
+<p>如果网络慢,页面很容易半天加载不出来,用户体验非常不好</p>
+<h2 id="为什么要使用SPA应用开发"><a href="#为什么要使用SPA应用开发" class="headerlink" title="为什么要使用SPA应用开发"></a>为什么要使用SPA应用开发</h2><p>通过上面的分析,我们不难发现,SPA和MPA各有优缺点,那我们为什么还要开发SPA呢,其实,<code>Vue</code>还提供了一些其它的技术来解决这些缺点，比如说服务器端渲染技术(SSR)，通过这些技术可以完美解决这些缺点，解决完这些问题，实际上单页面应用对于前端来说是非常完美的页面开发解决方案。</p>
+<p><img src="%E6%96%B0%E6%96%87%E7%AB%A0.assets/47db831bffcd40349464396ef73901d7_tplv-k3u1fbpfcp-zoom-in-crop-mark_1304_0_0_0.webp" alt="SPA和MPA的对比.png"></p>
+<h3 id="白屏优化"><a href="#白屏优化" class="headerlink" title="白屏优化"></a>白屏优化</h3><p>由于这三大框架都是JS驱动，在JS没有解析加载完成之前页面无法展示，会处于长时间的白屏</p>
+<h2 id="SSR"><a href="#SSR" class="headerlink" title="SSR"></a>SSR</h2><p>想到白屏问题，首先想到的解决方案一般都是<strong>服务端渲染</strong>，在服务端将渲染逻辑处理好，然后将处理好的HTML直接返回给前端展示，这样就可以解决白屏的问题，也可以解决seo的问题，因为不需要动态获取数据了，但是，这和我早期的写后端时的开发模式很像，前端和后端关联在了一起，不利于维护，同时，对于前端工程师来说，要求变高来，需要了解一定的后端知识，虽然有类似Nuxt.js这类的SSR框架帮我们简化了服务端的部分，但是在要做定制或是解决bug时还是无法避免要<strong>对服务端部分进行调试、维护，成本颇高，还有需要考虑的服务端渲染会增加服务器压力，要处理并发、运行速度问题</strong>等等</p>
+<p>作者：william_li21790<br>链接：<a target="_blank" rel="noopener" href="https://juejin.cn/post/6844903941713428487">https://juejin.cn/post/6844903941713428487</a><br>来源：稀土掘金<br>著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。</p>
 
                 
             </div>
@@ -1236,7 +1577,7 @@
                     </i>
                 </span>
                 <span class="reprint-info">
-                    <a href="https://Fengyain.github.io/2022-03-08-%E6%96%B0%E6%96%87%E7%AB%A0.html">https://Fengyain.github.io/2022-03-08-%E6%96%B0%E6%96%87%E7%AB%A0.html</a>
+                    <a href="https://Fengyain.github.io/2022-03-08-%E5%89%8D%E7%AB%AF%E9%9D%A2%E8%AF%95.html">https://Fengyain.github.io/2022-03-08-%E5%89%8D%E7%AB%AF%E9%9D%A2%E8%AF%95.html</a>
                 </span>
             </div>
             <div class="reprint__notice">
@@ -1446,7 +1787,7 @@
                 <i class="far fa-dot-circle"></i>&nbsp;本篇
             </div>
             <div class="card">
-                <a href="/2022-03-08-%E6%96%B0%E6%96%87%E7%AB%A0.html">
+                <a href="/2022-03-08-%E5%89%8D%E7%AB%AF%E9%9D%A2%E8%AF%95.html">
                     <div class="card-image">
                         
                         
